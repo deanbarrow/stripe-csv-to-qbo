@@ -3,7 +3,6 @@ import argparse
 import time
 import math
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', nargs='+', type=argparse.FileType('r'))
@@ -20,14 +19,14 @@ def main():
                 # This is the "gross" payment
                 transactions.append((
                     tstamp,
-                    'Stripe - {Status} {Description} From {Card Name} {Customer Email (metadata)}'.format(**line),
+                    'Stripe Received - {Status} {Description} From {Card Name} {Customer Email (metadata)}'.format(**line),
                     line['Amount'].replace(',', '')
                 ))
 
                 if line['Fee'] != '0.00':
                     transactions.append((
                         tstamp,
-                        'Stripe - {Status} Fee {Description} From {Card Name} {Customer Email (metadata)}'.format(**line),
+                        'Stripe Paid - {Status} Fee {Description} From {Card Name} {Customer Email (metadata)}'.format(**line),
                         '-' + line['Fee'].replace(',', '')
                     ))
 
