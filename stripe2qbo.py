@@ -11,24 +11,33 @@ def main():
     transactions = []
     for f in args.infile:
         for line in csv.DictReader(f):
-            # The single line has a gross payment and a fee payment, so we need to split those apart
             tstamp = time.strptime('{Created (UTC)}'.format(**line), '%Y-%m-%d %H:%M')
+            line['Amount'] = line['Amount'].replace(',','')
 
-            if line['Status'] != 'Failed':
+            if line['Type'] == 'transfer':
+                transactions.append((tstamp, 'Transfer: {Description}'.format(**line), line['Amount']))
 
-                # This is the "gross" payment
-                transactions.append((
-                    tstamp,
-                    'Stripe Received - {Status} {Description} From {Card Name} {Customer Email (metadata)}'.format(**line),
-                    line['Amount'].replace(',', '')
-                ))
+            elif line['Type'] == 'refund':
+                transactions.append((tstamp, 'Refund: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
 
                 if line['Fee'] != '0.00':
-                    transactions.append((
-                        tstamp,
-                        'Stripe Paid - {Status} Fee {Description} From {Card Name} {Customer Email (metadata)}'.format(**line),
-                        '-' + line['Fee'].replace(',', '')
-                    ))
+                    transactions.append((tstamp, 'Refund: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+
+            elif line['Type'] == 'adjustment':
+                transactions.append((tstamp, 'Adjustment: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+
+                if line['Fee'] != '0.00':
+                    transactions.append((tstamp, 'Adjustment: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+
+            elif line['Type'] == 'charge':
+                transactions.append((tstamp, 'Received: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+
+                if line['Fee'] != '0.00':
+                    transactions.append((tstamp, 'Sent: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+
+            else: 
+                transactions.append((tstamp, 'REVIEW: {id} {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+                print 'Review transaction ID {id}'.format(**line)
 
     for filenum in range(0, int(math.ceil(len(transactions) / 1000.0))):
         with open('StripeQuickBooksOutput%d.csv' % (filenum + 1), 'w') as f:
