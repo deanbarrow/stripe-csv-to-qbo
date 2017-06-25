@@ -33,7 +33,7 @@ def main():
                 transactions.append((tstamp, 'Received: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
 
                 if line['Fee'] != '0.00':
-                    transactions.append((tstamp, 'Sent: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+                    transactions.append((tstamp, 'Spent: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
 
             else: 
                 transactions.append((tstamp, 'REVIEW: {id} {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
