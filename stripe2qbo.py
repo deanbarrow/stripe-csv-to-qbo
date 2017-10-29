@@ -14,7 +14,7 @@ def main():
             tstamp = time.strptime('{Created (UTC)}'.format(**line), '%Y-%m-%d %H:%M')
             line['Amount'] = line['Amount'].replace(',','')
 
-            if line['Type'] == 'transfer':
+            if line['Type'] == 'payout':
                 transactions.append((tstamp, 'Transfer: {Description}'.format(**line), line['Amount']))
 
             elif line['Type'] == 'refund':
