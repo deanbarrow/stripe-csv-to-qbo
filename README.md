@@ -5,7 +5,7 @@ Converts CSV exports from Stripe to a CSV format that QuickBooks Online understa
 Stripe Download
 ---------------
 
-1. In your Stripe account, browse to the Payments → Balance page.
+1. In your Stripe account, browse to the Balance → Transactions page.
 2. Filter to the required time range then click Export, you'll end up with a CSV file (probably called `payments.csv`).
 
 Convert
