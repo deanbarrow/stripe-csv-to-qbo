@@ -11,32 +11,32 @@ def main():
     transactions = []
     for f in args.infile:
         for line in csv.DictReader(f):
-            tstamp = time.strptime('{Created (UTC)}'.format(**line), '%Y-%m-%d %H:%M')
-            line['Amount'] = line['Amount'].replace(',','')
+            tstamp = time.strptime('{created_utc}'.format(**line), '%Y-%m-%d %H:%M:%S')
+            line['gross'] = line['gross'].replace(',','')
 
-            if line['Type'] == 'payout':
-                transactions.append((tstamp, 'Transfer: {Description}'.format(**line), line['Amount']))
+            if line['reporting_category'] == 'payout':
+                transactions.append((tstamp, 'Transfer: {description}'.format(**line), line['gross']))
 
-            elif line['Type'] == 'refund':
-                transactions.append((tstamp, 'Refund: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+            elif line['reporting_category'] == 'refund':
+                transactions.append((tstamp, 'Refund: {description} From {customer_description} {customer_email}'.format(**line), line['gross']))
 
-                if line['Fee'] != '0.00':
-                    transactions.append((tstamp, 'Refund: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+                if line['fee'] != '0.00':
+                    transactions.append((tstamp, 'Refund: Fee {description} From {customer_description} {customer_email}'.format(**line), ('-' + line['fee']).replace('--','')))
 
-            elif line['Type'] == 'adjustment':
-                transactions.append((tstamp, 'Adjustment: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+            elif line['reporting_category'] == 'adjustment':
+                transactions.append((tstamp, 'Adjustment: {description} From {customer_description} {customer_email}'.format(**line), line['gross']))
 
-                if line['Fee'] != '0.00':
-                    transactions.append((tstamp, 'Adjustment: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+                if line['fee'] != '0.00':
+                    transactions.append((tstamp, 'Adjustment: Fee {description} From {customer_description} {customer_email}'.format(**line), ('-' + line['fee']).replace('--','')))
 
-            elif line['Type'] == 'charge':
-                transactions.append((tstamp, 'Received: {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+            elif line['reporting_category'] == 'charge':
+                transactions.append((tstamp, 'Received: {description} From {customer_description} {customer_email}'.format(**line), line['gross']))
 
-                if line['Fee'] != '0.00':
-                    transactions.append((tstamp, 'Spent: Fee {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), ('-' + line['Fee']).replace('--','')))
+                if line['fee'] != '0.00':
+                    transactions.append((tstamp, 'Spent: Fee {description} From {customer_description} {customer_email}'.format(**line), ('-' + line['fee']).replace('--','')))
 
             else: 
-                transactions.append((tstamp, 'REVIEW: {id} {Description} From {Customer Name (metadata)} {Customer Email (metadata)}'.format(**line), line['Amount']))
+                transactions.append((tstamp, 'REVIEW: {id} {description} From {customer_description} {customer_email}'.format(**line), line['gross']))
                 print 'Review transaction ID {id}'.format(**line)
 
     for filenum in range(0, int(math.ceil(len(transactions) / 1000.0))):
